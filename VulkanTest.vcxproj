@@ -161,6 +161,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyClass.cpp" />
     <ClCompile Include="QueueFamilyIndices.cpp" />
+    <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="Validation.cpp" />
     <ClCompile Include="VulkanBase.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="GraphicsPipeLine.h" />
     <ClInclude Include="MyClass.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
+    <ClInclude Include="RenderPass.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="Validation.h" />
     <ClInclude Include="VulkanBase.h" />

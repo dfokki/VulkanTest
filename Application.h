@@ -18,6 +18,8 @@
 #include <optional>
 #include <set>
 #include "SwapChainSupportDetails.h"
+#include "RenderPass.h"
+#include "GraphicsPipeLine.h"
 
 class Application : Validation
 {
@@ -66,6 +68,10 @@ private:
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
+	RenderPass *_renderPass;
+	GraphicsPipeLine *_graphicsPipeLine;
+
 public:
 
 	std::string GetName() { return _name; };

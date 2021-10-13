@@ -3,6 +3,7 @@
 
 
 
+
 Application::Application(): Validation()
 {
 }
@@ -31,6 +32,10 @@ void Application::initVulkan()
 	selectPhysicalDevice();
 	CreateLogicalDevice();
 	createSwapChain();
+	createImageViews();
+	_renderPass = new RenderPass(_device, _swapChainImageFormat);
+	_graphicsPipeLine = new GraphicsPipeLine(_device, _swapChainExtent);
+	
 }
 
 void Application::createImageViews() {
@@ -381,6 +386,9 @@ void Application::mainLoop()
 
 void Application::cleanup()
 {
+	
+	delete _graphicsPipeLine;
+	delete _renderPass;
 	for (auto imageView : swapChainImageViews) {
 		vkDestroyImageView(_device, imageView, nullptr);
 	}
