@@ -24,16 +24,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MyClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Validation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="QueueFamilyIndices.cpp">
@@ -51,6 +45,9 @@
     <ClCompile Include="RenderPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -60,9 +57,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Validation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QueueFamilyIndices.h">
@@ -83,16 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="README.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shader.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shader.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="compile.bat">
-      <Filter>Resource Files\Shaders\Tools</Filter>
-    </None>
+    <Text Include="DidYaKnow.txt" />
   </ItemGroup>
 </Project>

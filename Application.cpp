@@ -3,7 +3,6 @@
 
 
 
-
 Application::Application(): Validation()
 {
 }
@@ -15,6 +14,7 @@ Application::Application(std::string name): Validation()
 
 void Application::run()
 {
+	//Add these to graphics engine layer------- so only engine initializon is required and  so the engine handles graphic engine 
 	initWindow();
 
 	initVulkan();
@@ -23,9 +23,18 @@ void Application::run()
 
 	cleanup();
 }
+void Application::initWindow()
+{
+	glfwInit();
 
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	//c_str() used to get the const char* from string
+	_window = glfwCreateWindow(WIDTH, HEIGHT, _name.c_str(), nullptr, nullptr);
+}
 void Application::initVulkan()
 {
+/*Move this section to Graphics parent class and inherit to Vulkan and OpenGL need to overload some of the functions*/
 	createInstance();
 	setupDebugMessenger();
 	CreateSurface();
@@ -33,14 +42,17 @@ void Application::initVulkan()
 	CreateLogicalDevice();
 	createSwapChain();
 	createImageViews();
+	createFrameBuffers();
+	createCommandPool();
+	createCommandBuffers();
 	_renderPass = new RenderPass(_device, _swapChainImageFormat);
-	_graphicsPipeLine = new GraphicsPipeLine(_device, _swapChainExtent);
+	_graphicsPipeLine = new GraphicsPipeLine(_device, _swapChainExtent, _renderPass);
 	
 }
 
 void Application::createImageViews() {
 	
-	swapChainImageViews.resize(_swapChainImages.size());
+	_swapChainImageViews.resize(_swapChainImages.size());
 	for (size_t i = 0; i < _swapChainImages.size(); i++) {
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -57,7 +69,7 @@ void Application::createImageViews() {
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		if (vkCreateImageView(_device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+		if (vkCreateImageView(_device, &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image views!");
 		}
 	}
@@ -386,10 +398,13 @@ void Application::mainLoop()
 
 void Application::cleanup()
 {
-	
+	vkDestroyCommandPool(_device, commandPool, nullptr);
+	for (auto framebuffer : swapChainFrameBuffers) {
+		vkDestroyFramebuffer(_device, framebuffer, nullptr);
+	}
 	delete _graphicsPipeLine;
 	delete _renderPass;
-	for (auto imageView : swapChainImageViews) {
+	for (auto imageView : _swapChainImageViews) {
 		vkDestroyImageView(_device, imageView, nullptr);
 	}
 
@@ -404,13 +419,98 @@ void Application::cleanup()
 	glfwTerminate();
 }
 
-void Application::initWindow()
-{
-	glfwInit();
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	//c_str() used to get the const char* from string
-	_window = glfwCreateWindow( WIDTH, HEIGHT, _name.c_str(), nullptr, nullptr);
+
+//BUFFERS
+void Application::createFrameBuffers()
+{
+	swapChainFrameBuffers.resize(_swapChainImageViews.size());
+
+	for (size_t i = 0; i < _swapChainImageViews.size(); i++)
+	{
+		VkImageView attachments[] = {
+			_swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = *_renderPass->pRenderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = _swapChainExtent.width;
+		framebufferInfo.height = _swapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+
+		if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &swapChainFrameBuffers[i]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create framebuffer");
+		}
+
+	}
+
+	
+}
+void Application::createCommandPool()
+{
+	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+	poolInfo.flags = 0;
+
+	if (vkCreateCommandPool(_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create command pool!");
+	}
 }
 
+void Application::createCommandBuffers()
+{
+	commandBuffers.resize(swapChainFrameBuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = commandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+
+	}
+
+	for (size_t i = 0; i < commandBuffers.size(); i++) {
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0; // Optional
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+
+		if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = *_renderPass->pRenderPass;
+		renderPassInfo.framebuffer = swapChainFrameBuffers[i];
+		renderPassInfo.renderArea.offset = { 0,0 };
+		renderPassInfo.renderArea.extent = _swapChainExtent;
+
+		VkClearValue clearColor = { {{0.0f,0.0f,0.0f,1.0f}} };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeLine->graphicsPipeline);
+		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+
+	}
+}

@@ -24,7 +24,11 @@
 class Application : Validation
 {
 private:
-	
+	// command buffer stuff
+	VkCommandPool commandPool;
+	std::vector<VkCommandBuffer> commandBuffers;
+	//FrameBuffer Stuff
+	std::vector<VkFramebuffer> swapChainFrameBuffers;
 	//VkDebugUtilsMessengerCreateInfoEXT _debuginfo{};
 	std::string _name;
 	GLFWwindow* _window;
@@ -41,8 +45,10 @@ private:
 	std::vector<VkImage> _swapChainImages;
 	VkFormat _swapChainImageFormat;
 	VkExtent2D _swapChainExtent;
-	std::vector<VkImageView> swapChainImageViews;
+	std::vector<VkImageView> _swapChainImageViews;
 	void initVulkan();
+	void createCommandPool();
+	void createCommandBuffers();
 	void createImageViews();
 	void selectPhysicalDevice();
 	const std::vector<const char*> deviceExtensions = {
@@ -64,6 +70,7 @@ private:
 	void CreateLogicalDevice();
 	void CreateSurface();
 	void createSwapChain();
+	void createFrameBuffers();
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);

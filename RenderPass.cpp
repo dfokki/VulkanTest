@@ -3,13 +3,13 @@
 
 RenderPass::RenderPass(VkDevice &device, VkFormat &swapChainImageFormat)
 {
-    _device = &device;
+    pDevice = &device;
     createRenderPass(device, swapChainImageFormat);
 }
 
 RenderPass::~RenderPass()
 {
-    vkDestroyRenderPass(*_device, _renderPass, nullptr);
+    vkDestroyRenderPass(*pDevice, *pRenderPass, nullptr);
 }
 
 void RenderPass::createRenderPass(VkDevice &device, VkFormat& swapChainImageFormat)
@@ -40,7 +40,7 @@ void RenderPass::createRenderPass(VkDevice &device, VkFormat& swapChainImageForm
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, pRenderPass) != VK_SUCCESS) {
         throw std::runtime_error("failed to create render pass!");
     }
 }

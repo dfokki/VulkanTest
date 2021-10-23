@@ -4,13 +4,12 @@
 #include <ostream>
 #include <vector>
 
-#include "VulkanBase.h"
 
 class Validation //: VulkanBase
 {
 	
 protected:
-	
+
 	Validation();
 	~Validation();
 	[[nodiscard]] bool check_validation_layer_support() const;
@@ -29,7 +28,7 @@ protected:
 	};
 	
 	static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr) {
 			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
 		}

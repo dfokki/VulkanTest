@@ -1,0 +1,15 @@
+
+1. MIKSI TÄMÄ PIIRTÄMINEN ON NIIN TYÖTELIÄSTÄ?
+	tiesitkö että piirto komentoja ja muistin siirtoja ei Vulkanissa suoriteta funktio kutsuilla.
+	Kaikki operaatiot joita halutaan suortittaa pitää tallentaa komento puskuri olioihin (command buffer objects)
+	Hienona puolena tässä on että kaikki vaativa työ piirron suorittamiseksi voidaan thedä etukäteen ja
+	ja useammassa säikeessä (threads), jonka jälkeen Vulkania voidaan käskeä suorittamaan komentoja pää loopissa.
+
+2. 
+
+
+MITÄ JÄI KÄTEEN:
+Vulkanissa on helvetisti buffereita.
+kaikki on buffereita.
+komento bufferit, piirto bufferit, näyttö bufferit ja bufferin bufferit.
+

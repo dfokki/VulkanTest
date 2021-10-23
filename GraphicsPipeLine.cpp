@@ -1,15 +1,5 @@
 #include "GraphicsPipeLine.h"
 
-GraphicsPipeLine::GraphicsPipeLine(VkDevice& device, VkExtent2D& swapChainExtent)
-{
-    _device = device;
-    _swapChainExtent = swapChainExtent;
-    vertShaderFileName = "shaders/vert.spv";
-    fragShaderFileName = "shaders/frag.spv";
-    createGraphicsPipeline();
-   
-    
-}
 
 void GraphicsPipeLine::createGraphicsPipeline() {
     auto vertShaderCode = FileReaderTool::ReadFile(vertShaderFileName);
@@ -123,6 +113,28 @@ void GraphicsPipeLine::createGraphicsPipeline() {
     if (vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
+
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = *renderPass.pRenderPass;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+    if (vkCreateGraphicsPipelines(_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create graphics pipeline!");
+    }
+
+    vkDestroyShaderModule(_device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(_device, vertShaderModule, nullptr);
 }
 
 VkShaderModule GraphicsPipeLine::createShaderModule(const std::vector<char>& code, VkDevice &device)
@@ -143,6 +155,8 @@ VkShaderModule GraphicsPipeLine::createShaderModule(const std::vector<char>& cod
 
 GraphicsPipeLine::~GraphicsPipeLine()
 {
+
+    vkDestroyPipeline(_device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, pipelineLayout, nullptr);
     vkDestroyShaderModule(_device, fragShaderModule, nullptr);
     vkDestroyShaderModule(_device, vertShaderModule, nullptr);

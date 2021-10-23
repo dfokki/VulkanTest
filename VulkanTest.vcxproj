@@ -164,7 +164,6 @@
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="Validation.cpp" />
-    <ClCompile Include="VulkanBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -175,15 +174,10 @@
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="Validation.h" />
-    <ClInclude Include="VulkanBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="DidYaKnow.txt" />
     <Text Include="README.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="compile.bat" />
-    <None Include="Shader.frag" />
-    <None Include="Shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
